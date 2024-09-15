@@ -1,0 +1,8 @@
+from fastapi import FastAPI
+app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"Recommending Club&Academy"}
+
+# http://127.0.0.1:8000
