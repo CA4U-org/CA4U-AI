@@ -1,0 +1,6 @@
+#### Fetcher
+# 파일 경로 및 데이터 로드
+import pandas as pd
+file_path = '/Users/daanbee/Desktop/CA4Udata.xlsx'
+df = pd.read_excel(file_path)
+df.head(5)

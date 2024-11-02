@@ -1,0 +1,5 @@
+#### Adapter
+# 필요한 칼럼만 선택 (수정된 칼럼으로 변경)
+columns_to_use = ['clubNm', 'briefDescription', 'recruitDescription', 'targetPeopleDescription', 'targetCycleDescription',
+                  'applyDescription', 'actDayDescription', 'locationDescription', 'costDescription', 'specDescription']
+data = df[columns_to_use].copy()

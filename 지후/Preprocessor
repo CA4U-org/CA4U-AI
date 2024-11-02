@@ -1,0 +1,29 @@
+#### Adapter
+# 필요한 칼럼만 선택 (수정된 칼럼으로 변경)
+columns_to_use = ['clubNm', 'briefDescription', 'recruitDescription', 'targetPeopleDescription', 'targetCycleDescription',
+                  'applyDescription', 'actDayDescription', 'locationDescription', 'costDescription', 'specDescription']
+data = df[columns_to_use].copy()
+
+#### Preprocessor
+# 불용어 리스트 (필요 시 수정)
+stopwords = ['중앙대', '중앙대학교', '동아리', 'PM', '명', '기수', '기존', '기존부원', '신입', '신입부원', '1학기', '00', '정기모임', '기준', '약', '2024', '부원', '여']
+
+# 전처리 함수
+def preprocess_text(text):
+    text = str(text)  # 문자열로 변환
+    for stopword in stopwords:
+        text = text.replace(stopword, '')
+    return text
+
+# 각 칼럼에 전처리 적용
+for col in data.columns[1:]:
+    data[col] = data[col].apply(preprocess_text)
+
+# TF-IDF 벡터화 및 토큰 추출
+tfidf_matrix = {}
+tokens = {}
+
+for col in data.columns[1:]:  # '단체명'은 제외하고 벡터화
+    vectorizer = TfidfVectorizer(token_pattern=r"(?u)\b\w+\b")  # 한 글자 단위도 포함
+    tfidf_matrix[col] = vectorizer.fit_transform(data[col])
+    tokens[col] = vectorizer.get_feature_names_out()
