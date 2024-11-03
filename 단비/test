@@ -1,18 +1,16 @@
-from fastapi import FastAPI
-from typing import List
+from flask import Flask, request, jsonify
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+
+app = Flask(__name__)
 
 # Fetcher
-# 파일 경로 및 데이터 로드
 file_path = '/Users/daanbee/Desktop/CA4Udata.xlsx'
 df = pd.read_excel(file_path)
 
-# adapter
+# Adapter
 def adapter(df):
     columns_to_use = ['clubNm', 'briefDescription', 'recruitDescription', 
                       'targetPeopleDescription', 'targetCycleDescription', 
@@ -21,7 +19,9 @@ def adapter(df):
                       'specDescription']
     return df[columns_to_use].copy()
 
-# processor
+data = adapter(df)
+
+# Preprocess
 def preprocess(data):
     stopwords = ['중앙대', '중앙대학교', '동아리', 'PM', '명', '기수', '기존', '기존부원', '신입', '신입부원', '1학기', '00', '정기모임', '기준', '약', '2024', '부원', '여']
     
@@ -36,25 +36,19 @@ def preprocess(data):
     
     return data
 
-# analysis
+data = preprocess(data)
 
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
+# Analysis
 def analysis(data):
-    # TF-IDF 행렬 생성
     tfidf = TfidfVectorizer()
     tfidf_matrix = {}
     for col in data.columns[1:]:
         tfidf_matrix[col] = tfidf.fit_transform(data[col].fillna('')).toarray()
     
-    # 코사인 유사도 계산
     cosine_sim = {}
     for col in data.columns[1:]:
         cosine_sim[col] = cosine_similarity(tfidf_matrix[col])
 
-    # 가중치 적용
     weights = {
         'clubNm' : 0,
         'briefDescription' : 0.5,
@@ -68,51 +62,32 @@ def analysis(data):
         'specDescription' : 0.3
     }
 
-    # 최종 유사도 계산
     final_similarity = np.zeros_like(cosine_sim[data.columns[1]])
     for col in data.columns[1:]:
         final_similarity += weights[col] * cosine_sim[col]
     
-    # 추천 함수 정의
-    def recommend_clubs(selected_club, top_n=3):
-        idx = data[data['clubNm'] == selected_club].index[0]
-        sim_scores = list(enumerate(final_similarity[idx]))
-        sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-        sim_scores = [x for x in sim_scores if x[0] != idx]  # 선택한 단체 제외
-        top_clubs = [data['clubNm'][i[0]] for i in sim_scores[:top_n]]
-        return top_clubs
+    return final_similarity
 
-    # 분석 결과와 추천 함수 반환
-    return recommend_clubs
+final_similarity = analysis(data)
 
-# model
+# Model
 def model(selected_club, top_n=3):
     idx = data[data['clubNm'] == selected_club].index[0]
     sim_scores = list(enumerate(final_similarity[idx]))
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-    sim_scores = [x for x in sim_scores if x[0] != idx]  # 선택한 단체 제외
+    sim_scores = [x for x in sim_scores if x[0] != idx]  # 선택한 동아리 제외
     top_clubs = [data['clubNm'][i[0]] for i in sim_scores[:top_n]]
     return top_clubs
 
-app = FastAPI()
+# API 엔드포인트 정의
+@app.route('/recommend', methods=['GET'])
+def recommend():
+    selected_club = request.args.get('club')
+    top_n = int(request.args.get('top_n', 3))  # 기본값을 3으로 설정
+    if selected_club not in data['clubNm'].values:
+        return jsonify({"error": "선택한 동아리가 데이터에 없습니다."}), 400
+    recommendations = model(selected_club, top_n)
+    return jsonify({"recommendations": recommendations})
 
-
-model_data = None
-
-# 루트 엔드포인트
-@app.get("/")
-def root():
-    global model_data
-    df = fetcher()
-    adapted_data = adapter(df)
-    final_similarity, data = analysis(preprocess(adapted_data))
-    model_data = final_similarity, data  # 모델에 결과 저장
-
-## 추천 시스템 엔드포인트
-@app.get("/model-use")
-def model_use():
-    global model_data
-    selected_club = 'Club A'  # 일단 고정된 값으로 'Club A' 지정
-    final_similarity, data = model_data
-    recommended_clubs = recommend_clubs(selected_club, final_similarity, data)
-    return {"추천 동아리": recommended_clubs}
+if __name__ == '__main__':
+    app.run(debug=True)
