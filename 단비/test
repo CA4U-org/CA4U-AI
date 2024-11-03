@@ -68,10 +68,10 @@ def analysis(data):
     
     return final_similarity
 
-model = analysis(data)
+final_similarity = analysis(data)
 
 # Model
-def model(selected_club, top_n=3):
+def get_recommendations(selected_club, top_n=3):
     idx = data[data['clubNm'] == selected_club].index[0]
     sim_scores = list(enumerate(final_similarity[idx]))
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
@@ -86,7 +86,7 @@ def recommend():
     top_n = int(request.args.get('top_n', 3))  # 기본값을 3으로 설정
     if selected_club not in data['clubNm'].values:
         return jsonify({"error": "선택한 동아리가 데이터에 없습니다."}), 400
-    recommendations = model(selected_club, top_n)
+    recommendations = get_recommendations(selected_club, top_n)
     return jsonify({"recommendations": recommendations})
 
 if __name__ == '__main__':
