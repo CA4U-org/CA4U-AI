@@ -68,7 +68,7 @@ def analysis(data):
     
     return final_similarity
 
-final_similarity = analysis(data)
+model = analysis(data)
 
 # Model
 def model(selected_club, top_n=3):
