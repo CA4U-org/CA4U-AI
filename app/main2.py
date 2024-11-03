@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from typing import List
 import pandas as pd
 import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from fetcher import fetcher
 from adapter import adapter
 from preprocess import preprocess
@@ -13,21 +15,21 @@ app = FastAPI()
 
 model_data = None
 
-# ·çÆ® ¿£µåÆ÷ÀÎÆ®
+# ë£¨íŠ¸ ì—”ë“œí¬ì¸íŠ¸
 @app.get("/")
 def root():
     global model_data
     df = fetcher()
     adapted_data = adapter(df)
     final_similarity, data = analysis(preprocess(adapted_data))
-    model_data = final_similarity, data  # ¸ğµ¨¿¡ °á°ú ÀúÀå
+    model_data = final_similarity, data  # ëª¨ë¸ì— ê²°ê³¼ ì €ì¥
 
-## ÃßÃµ ½Ã½ºÅÛ ¿£µåÆ÷ÀÎÆ®
+## ì¶”ì²œ ì‹œìŠ¤í…œ ì—”ë“œí¬ì¸íŠ¸
 @app.get("/model-use")
 def model_use():
     global model_data
-    selected_club = 'Club A'  # ÀÏ´Ü °íÁ¤µÈ °ªÀ¸·Î 'Club A' ÁöÁ¤
+    selected_club = 'Club A'  # ì¼ë‹¨ ê³ ì •ëœ ê°’ìœ¼ë¡œ 'Club A' ì§€ì •
     final_similarity, data = model_data
     recommended_clubs = recommend_clubs(selected_club, final_similarity, data)
-    return {"ÃßÃµ µ¿¾Æ¸®": recommended_clubs}
+    return {"ì¶”ì²œ ë™ì•„ë¦¬": recommended_clubs}
 
