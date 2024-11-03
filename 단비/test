@@ -1,0 +1,118 @@
+from fastapi import FastAPI
+from typing import List
+import pandas as pd
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Fetcher
+# 파일 경로 및 데이터 로드
+file_path = '/Users/daanbee/Desktop/CA4Udata.xlsx'
+df = pd.read_excel(file_path)
+
+# adapter
+def adapter(df):
+    columns_to_use = ['clubNm', 'briefDescription', 'recruitDescription', 
+                      'targetPeopleDescription', 'targetCycleDescription', 
+                      'applyDescription', 'actDayDescription', 
+                      'locationDescription', 'costDescription', 
+                      'specDescription']
+    return df[columns_to_use].copy()
+
+# processor
+def preprocess(data):
+    stopwords = ['중앙대', '중앙대학교', '동아리', 'PM', '명', '기수', '기존', '기존부원', '신입', '신입부원', '1학기', '00', '정기모임', '기준', '약', '2024', '부원', '여']
+    
+    def preprocess_text(text):
+        text = str(text)
+        for stopword in stopwords:
+            text = text.replace(stopword, '')
+        return text
+    
+    for col in data.columns[1:]:
+        data[col] = data[col].apply(preprocess_text)
+    
+    return data
+
+# analysis
+
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+def analysis(data):
+    # TF-IDF 행렬 생성
+    tfidf = TfidfVectorizer()
+    tfidf_matrix = {}
+    for col in data.columns[1:]:
+        tfidf_matrix[col] = tfidf.fit_transform(data[col].fillna('')).toarray()
+    
+    # 코사인 유사도 계산
+    cosine_sim = {}
+    for col in data.columns[1:]:
+        cosine_sim[col] = cosine_similarity(tfidf_matrix[col])
+
+    # 가중치 적용
+    weights = {
+        'clubNm' : 0,
+        'briefDescription' : 0.5,
+        'recruitDescription' : 0.5,
+        'targetPeopleDescription' : 0.3,
+        'targetCycleDescription' : 0.1,
+        'applyDescription' : 0.3,
+        'actDayDescription' : 0.3,
+        'locationDescription' : 0.1,
+        'costDescription' : 0.1,
+        'specDescription' : 0.3
+    }
+
+    # 최종 유사도 계산
+    final_similarity = np.zeros_like(cosine_sim[data.columns[1]])
+    for col in data.columns[1:]:
+        final_similarity += weights[col] * cosine_sim[col]
+    
+    # 추천 함수 정의
+    def recommend_clubs(selected_club, top_n=3):
+        idx = data[data['clubNm'] == selected_club].index[0]
+        sim_scores = list(enumerate(final_similarity[idx]))
+        sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+        sim_scores = [x for x in sim_scores if x[0] != idx]  # 선택한 단체 제외
+        top_clubs = [data['clubNm'][i[0]] for i in sim_scores[:top_n]]
+        return top_clubs
+
+    # 분석 결과와 추천 함수 반환
+    return recommend_clubs
+
+# model
+def model(selected_club, top_n=3):
+    idx = data[data['clubNm'] == selected_club].index[0]
+    sim_scores = list(enumerate(final_similarity[idx]))
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    sim_scores = [x for x in sim_scores if x[0] != idx]  # 선택한 단체 제외
+    top_clubs = [data['clubNm'][i[0]] for i in sim_scores[:top_n]]
+    return top_clubs
+
+app = FastAPI()
+
+
+model_data = None
+
+# 루트 엔드포인트
+@app.get("/")
+def root():
+    global model_data
+    df = fetcher()
+    adapted_data = adapter(df)
+    final_similarity, data = analysis(preprocess(adapted_data))
+    model_data = final_similarity, data  # 모델에 결과 저장
+
+## 추천 시스템 엔드포인트
+@app.get("/model-use")
+def model_use():
+    global model_data
+    selected_club = 'Club A'  # 일단 고정된 값으로 'Club A' 지정
+    final_similarity, data = model_data
+    recommended_clubs = recommend_clubs(selected_club, final_similarity, data)
+    return {"추천 동아리": recommended_clubs}
