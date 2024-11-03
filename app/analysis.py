@@ -1,5 +1,8 @@
 # Analysis ÇÔ¼ö
 def analysis(data):
+    import numpy as np
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.metrics.pairwise import cosine_similarity
     tfidf_matrix = {}
     for col in data.columns[1:]:
         vectorizer = TfidfVectorizer(token_pattern=r"(?u)\b\w+\b")

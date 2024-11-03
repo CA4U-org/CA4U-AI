@@ -1,6 +1,6 @@
-# Preprocess ÇÔ¼ö
+# Preprocess í•¨ìˆ˜
 def preprocess(data):
-    stopwords = ['Áß¾Ó´ë', 'Áß¾Ó´ëÇÐ±³', 'µ¿¾Æ¸®', 'PM', '¸í', '±â¼ö', '±âÁ¸', '±âÁ¸ºÎ¿ø', '½ÅÀÔ', '½ÅÀÔºÎ¿ø', '1ÇÐ±â', '00', 'Á¤±â¸ðÀÓ', '±âÁØ', '¾à', '2024', 'ºÎ¿ø', '¿©']
+    stopwords = ['ì¤‘ì•™ëŒ€', 'ì¤‘ì•™ëŒ€í•™êµ', 'ë™ì•„ë¦¬', 'PM', 'ëª…', 'ê¸°ìˆ˜', 'ê¸°ì¡´', 'ê¸°ì¡´ë¶€ì›', 'ì‹ ìž…', 'ì‹ ìž…ë¶€ì›', '1í•™ê¸°', '00', 'ì •ê¸°ëª¨ìž„', 'ê¸°ì¤€', 'ì•½', '2024', 'ë¶€ì›', 'ì—¬']
     
     def preprocess_text(text):
         text = str(text)
