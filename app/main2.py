@@ -28,8 +28,8 @@ def root():
 @app.get("/model-use")
 def model_use():
     global model_data
-    selected_club = '피카통' 
+    favorites = '피카통' 
     final_similarity, data = model_data
-    recommended_clubs = recommend_clubs(selected_club, final_similarity, data)
+    recommended_clubs = recommend_clubs(favorites, final_similarity, data)
     return {"recommended_club": recommended_clubs}
 
