@@ -1,6 +1,6 @@
-# Adapter ÇÔ¼ö
+# Adapter í•¨ìˆ˜
 def adapter(df):
-    columns_to_use = ['clubNm', 'briefDescription', 'recruitDescription', 
+    columns_to_use = ['ID','clubNm', 'briefDescription', 'recruitDescription', 
                       'targetPeopleDescription', 'targetCycleDescription', 
                       'applyDescription', 'actDayDescription', 
                       'locationDescription', 'costDescription', 

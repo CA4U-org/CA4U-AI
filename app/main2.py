@@ -24,7 +24,6 @@ def root():
     final_similarity, data = analysis(preprocess(adapted_data))
     model_data = final_similarity, data  
 
-
 @app.get("/model-use")
 def model_use():
     global model_data

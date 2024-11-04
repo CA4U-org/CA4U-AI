@@ -1,4 +1,4 @@
-# Analysis ÇÔ¼ö
+# Analysis í•¨ìˆ˜
 def analysis(data):
     import numpy as np
     from sklearn.feature_extraction.text import TfidfVectorizer
@@ -13,6 +13,7 @@ def analysis(data):
         cosine_sim[col] = cosine_similarity(tfidf_matrix[col])
 
     weights = {
+        'ID':0,
         'clubNm': 0,
         'briefDescription': 0.5,
         'recruitDescription': 0.5,
