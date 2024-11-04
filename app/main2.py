@@ -20,10 +20,11 @@ recommend_model = None
 def create_recommend_model():
     global recommend_model
     if recommend_model is None:  
-        df = fetcher()
-        adapted_data = adapter(df)
-        final_similarity, data = analysis(preprocess(adapted_data))
-        recommend_model = final_similarity, data
+        fetcher_df = fetcher()
+        adapted_df = adapter(fetcher_df)
+        preprocess_df = preprocess(adapted_df)
+        final_similarity, final_data = analysis(preprocess_df)
+        recommend_model = final_similarity, final_data
         return {"message": "추천 모델이 성공적으로 생성되었습니다."}
     else:
         return {"message": "추천 모델이 이미 생성되어 있습니다."}
@@ -33,6 +34,6 @@ def create_recommend_model():
 def get_recommendations():
     global recommend_model
     favorites = '피카통' 
-    final_similarity, data = recommend_model
-    recommended_clubs = recommend_clubs(favorites, final_similarity, data)
+    final_similarity, final_data = recommend_model
+    recommended_clubs = recommend_clubs(favorites, final_similarity, final_data)
     return {"recommended_club": recommended_clubs}
