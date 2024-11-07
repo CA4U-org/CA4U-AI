@@ -12,4 +12,3 @@ def preprocess(data):
         data[col] = data[col].apply(preprocess_text)
     
     return data
-
