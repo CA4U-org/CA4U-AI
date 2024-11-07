@@ -29,11 +29,11 @@ def create_recommend_model():
     else:
         return {"message": "추천 모델이 이미 생성되어 있습니다."}
 
-# 추천 시스템 엔드포인트
-@app.get("/clubs/recommend")
-def get_recommendations():
+
+# 추천 시스템 엔드포인트 (경로 매개변수 사용)
+@app.get("/clubs/recommend/{favorites}")
+def get_recommendations(favorites: str):
     global recommend_model
-    favorites = '피카통' 
     final_similarity, final_data = recommend_model
     recommended_clubs = recommend_clubs(favorites, final_similarity, final_data)
     return {"recommended_club": recommended_clubs}
