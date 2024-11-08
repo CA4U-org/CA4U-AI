@@ -39,7 +39,7 @@ def get_recommendations(clubID: int):
     content_recommended_clubs = content_recommend_clubs(clubID, final_similarity, final_data)
     return {"recommended_club": content_recommended_clubs}
 
-# 여러 clubID를 쉼표로 구분하여 입력받는 content-recommend 시스템
+# content-recommend 시스템 (복수의 clubID 쉼표로 구분)
 @app.get("/clubs/content/recommend/n/{clubIDs}")
 def get_recommendations(clubIDs: str, top_n: int = 3):
     global content_recommend_model
