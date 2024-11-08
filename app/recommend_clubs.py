@@ -11,6 +11,26 @@ def content_recommend_clubs(selected_id, final_similarity, data, top_n=3):
     ]
     return top_clubs
 
+# 콘텐츠 필터링 추천 모델(ID 복수 입력 가능)
+def content_recommend_clubs_n(selected_ids, final_similarity, data, top_n=3):
+    aggregated_scores = {}
+    for selected_id in selected_ids:  # 각 선택된 clubID에 대해 유사도 점수 계산 및 합산
+        idx = data[data['ID'] == int(selected_id)].index[0]
+        sim_scores = list(enumerate(final_similarity[idx]))
+        for i, score in sim_scores:  # 현재 클럽을 제외하고 유사도 점수를 합산
+            if i != idx:  # 자기 자신은 제외
+                if i not in aggregated_scores:
+                    aggregated_scores[i] = score
+                else:
+                    aggregated_scores[i] += score
+    top_recommended = sorted(aggregated_scores.items(), key=lambda x: x[1], reverse=True)[:top_n]
+    top_clubs = [
+        {"id": int(data['ID'][i]), "name": data['clubNm'][i]}
+        for i, _ in top_recommended
+    ]
+    return top_clubs
+
+
 
 # 사용자 협업 필터링 추천 모델
 def user_recommend_clubs(user_id, user_favorites, club_data, top_n=2):

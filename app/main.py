@@ -1,12 +1,13 @@
 from fastapi import FastAPI
 from typing import List
-from fetcher import club_fetcher
-from fetcher import user_fetcher
-from adapter import adapter
-from preprocess import preprocess
-from analysis import analysis
-from recommend_clubs import content_recommend_clubs
-from recommend_clubs import user_recommend_clubs
+from app.fetcher import club_fetcher
+from app.fetcher import user_fetcher
+from app.adapter import adapter
+from app.preprocess import preprocess
+from app.analysis import analysis
+from app.recommend_clubs import content_recommend_clubs
+from app.recommend_clubs import content_recommend_clubs_n
+from app.recommend_clubs import user_recommend_clubs
 
 app = FastAPI()
 
@@ -38,6 +39,14 @@ def get_recommendations(clubID: int):
     content_recommended_clubs = content_recommend_clubs(clubID, final_similarity, final_data)
     return {"recommended_club": content_recommended_clubs}
 
+# 여러 clubID를 쉼표로 구분하여 입력받는 content-recommend 시스템
+@app.get("/clubs/content/recommend/n/{clubIDs}")
+def get_recommendations(clubIDs: str, top_n: int = 3):
+    global content_recommend_model
+    final_similarity, final_data = content_recommend_model
+    selected_ids = [int(id.strip()) for id in clubIDs.split(",")] # clubIDs를 쉼표로 구분하여 리스트로 변환
+    recommended_clubs = content_recommend_clubs_n(selected_ids, final_similarity, final_data, top_n=top_n)
+    return {"recommended_clubs": recommended_clubs}
 
 # user-recommend 모델 생성
 @app.get("/clubs/user/recommend/create")
