@@ -31,11 +31,11 @@ def create_recommend_model():
 
 
 # content-recommend 시스템 (경로 매개변수 사용)
-@app.get("/clubs/content/recommend/{favorites}")
-def get_recommendations(favorites: str):
+@app.get("/clubs/content/recommend/{clubID}")
+def get_recommendations(clubID: int):
     global content_recommend_model
     final_similarity, final_data = content_recommend_model
-    content_recommended_clubs = content_recommend_clubs(favorites, final_similarity, final_data)
+    content_recommended_clubs = content_recommend_clubs(clubID, final_similarity, final_data)
     return {"recommended_club": content_recommended_clubs}
 
 

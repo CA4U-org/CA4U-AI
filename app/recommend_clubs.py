@@ -1,6 +1,6 @@
 # 콘텐츠 필터링 추천 모델
-def content_recommend_clubs(selected_club, final_similarity, data, top_n=3):
-    idx = data[data['clubNm'] == selected_club].index[0]
+def content_recommend_clubs(selected_id, final_similarity, data, top_n=3):
+    idx = data[data['ID'] == int(selected_id)].index[0]
     sim_scores = list(enumerate(final_similarity[idx]))
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
     sim_scores = [x for x in sim_scores if x[0] != idx]  # 선택한 단체 제외
