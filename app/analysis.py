@@ -23,7 +23,7 @@ def analysis(data):
         'actDayDescription': 0.3,
         'locationDescription': 0.1,
         'costDescription': 0.1,
-        'specDescription': 0.3
+        'specDescription': 0.5
     }
 
     final_similarity = np.zeros_like(cosine_sim[data.columns[1]])
