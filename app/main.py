@@ -1,13 +1,10 @@
 from fastapi import FastAPI
 from typing import List
-from app.fetcher import club_fetcher
-from app.fetcher import user_fetcher
-from app.adapter import adapter
-from app.preprocess import preprocess
-from app.analysis import analysis
-from app.recommend_clubs import content_recommend_clubs
-from app.recommend_clubs import content_recommend_clubs_n
-from app.recommend_clubs import user_recommend_clubs
+from fetcher import club_fetcher, user_fetcher
+from adapter import adapter
+from preprocess import preprocess
+from analysis import analysis
+from recommend_clubs import content_recommend_clubs, content_recommend_clubs_n, user_recommend_clubs
 
 app = FastAPI()
 
