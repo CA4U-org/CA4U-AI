@@ -1,3 +1,6 @@
+import numpy as np
+from analysis import analysis
+
 # 콘텐츠 필터링 추천 모델
 def content_recommend_clubs(selected_id, final_similarity, data, top_n=3):
     idx = data[data['ID'] == int(selected_id)].index[0]
@@ -33,13 +36,9 @@ def content_recommend_clubs_n(selected_ids, final_similarity, data, top_n=3):
 
 # 사용자 협업 필터링 추천 모델
 def user_recommend_clubs(user_id, user_favorites, club_data, top_n=2):
-    import numpy as np
-    from analysis import analysis
-
-  
+    
     user_clubs = user_favorites[user_favorites['userID'] == user_id]['clubID']
     user_club_data = club_data[club_data['ID'].isin(user_clubs)]
-
 
     final_similarity, _ = analysis(club_data)  # 유사도 행렬만 추출
 
