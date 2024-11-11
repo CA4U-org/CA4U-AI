@@ -20,7 +20,3 @@ docker build -t ca4u-ai-app .
 //실행
 docker run -d -p 8000:80 ca4u-ai-app
 
-//실행중인 컨테이너 확인
-docker ps -a
-
-// HTTPie 설치 (Desktop 용으로)
