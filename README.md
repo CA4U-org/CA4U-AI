@@ -14,9 +14,6 @@ cd app
 uvicorn main:app --reload
 
 ## 도커 빌드 방법
-//이미지 생성
 docker build -t ca4u-ai-app .
-
-//실행
 docker run -d -p 8000:80 ca4u-ai-app
 
