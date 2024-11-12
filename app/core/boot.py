@@ -1,7 +1,9 @@
 from core.config import env
 import core.ctx
 from db.db import DB
-from datetime import datetime
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+from scheduler.scheduler_registry import SCHEDULER_REGISTRY
 
 def boot():  
     print("Application initiation start")
@@ -18,7 +20,12 @@ def boot():
             database = environment["DB_DATABASE"]
         )
 
-    core.ctx.CTX = core.ctx.Container(env, db)
+    scheduler = BackgroundScheduler()
+
+    for sc in SCHEDULER_REGISTRY:
+        scheduler.add_job(sc[0], IntervalTrigger(seconds=sc[1]))
+
+    core.ctx.CTX = core.ctx.Container(env, db, scheduler)
     print("Application initiation finished.")
 
 
