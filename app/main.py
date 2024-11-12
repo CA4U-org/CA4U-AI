@@ -7,6 +7,8 @@ from analysis import analysis
 from recommend_clubs import content_recommend_clubs, content_recommend_clubs_n, user_recommend_clubs
 from core.boot import boot
 
+boot()
+
 app = FastAPI()
 
 content_recommend_model = None
