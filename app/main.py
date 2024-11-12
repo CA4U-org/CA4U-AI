@@ -5,13 +5,11 @@ from adapter import adapter
 from preprocess import preprocess
 from analysis import analysis
 from recommend_clubs import content_recommend_clubs, content_recommend_clubs_n, user_recommend_clubs
-from core.boot import boot
+import core.boot
 from core.ctx import CTX
 
-boot()
-
-app = FastAPI()
-
+app = FastAPI()  
+  
 content_recommend_model = None
 user_recommend_model = None
 
@@ -77,6 +75,6 @@ def start_scheduler():
     scheduler.start()
 
 # FastAPI 앱 종료 시 스케줄러 종료
-@app.on_event("shutdown")
+@app.on_event("shutdown")  
 def shutdown_scheduler():
     CTX.scheduler.shutdown(wait=False)

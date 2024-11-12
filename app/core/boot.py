@@ -28,5 +28,4 @@ def boot():
     core.ctx.CTX = core.ctx.Container(env, db, scheduler)
     print("Application initiation finished.")
 
-
-boot()        
+boot()
