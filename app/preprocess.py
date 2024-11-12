@@ -8,7 +8,7 @@ def preprocess(data):
     def preprocess_stopwords_file():
         # 현재 파일 위치를 기준으로 stopword.txt 파일 경로 설정
         base_dir = os.path.dirname(__file__)
-        stopword_path = os.path.join(base_dir, '../dataSource/stopword.txt')
+        stopword_path = os.path.join(base_dir, 'dataSource/stopword.txt')
         
         with open(stopword_path, 'r', encoding='utf-8') as file:
             additional_stopwords = file.read().splitlines()

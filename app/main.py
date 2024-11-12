@@ -5,13 +5,12 @@ from adapter import adapter
 from preprocess import preprocess
 from analysis import analysis
 from recommend_clubs import content_recommend_clubs, content_recommend_clubs_n, user_recommend_clubs
+from core.boot import boot
 
 app = FastAPI()
 
-
 content_recommend_model = None
 user_recommend_model = None
-
 
 # content-recommend 모델 생성
 @app.get("/clubs/content/recommend/create")
