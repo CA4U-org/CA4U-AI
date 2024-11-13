@@ -30,7 +30,7 @@ class DB:
         *
         * data = CTX.DB.findAll("USER") 
     """
-    def findAll(self, table):
+    def find_all(self, table):
         query = f"SELECT * FROM {table}"
         return self.execute_with_connection(query)
     
@@ -53,9 +53,9 @@ class DB:
         *
         * 조회한 결과는 dictionary로 반환됩니다.
     """
-    def findByCreatedAtBetween(self, table, start, end):
+    def find_by_created_at_between(self, table, start, end):
         query = f"SELECT * FROM {table} WHERE created_at > %s AND created_at < %s"
         return self.execute_with_connection(query, (start, end))
 
-    def executeQuery(self, query, params=None):
+    def execute_query(self, query, params=None):
         return self.execute_with_connection(query, params)
