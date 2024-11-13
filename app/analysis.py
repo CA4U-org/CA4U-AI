@@ -15,17 +15,17 @@ def analysis(data):
         cosine_sim[col] = cosine_similarity(tfidf_matrix[col])
 
     weights = {
-        'ID':0,
-        'clubNm': 0,
-        'briefDescription': 0.5,
-        'recruitDescription': 0.5,
-        'targetPeopleDescription': 0.3,
-        'targetCycleDescription': 0.1,
-        'applyDescription': 0.3,
-        'actDayDescription': 0.3,
-        'locationDescription': 0.1,
-        'costDescription': 0.1,
-        'specDescription': 0.5
+        'id':0,
+        'club_nm': 0,
+        'brief_description': 0.5,
+        'recruit_description': 0.5,
+        'target_people_description': 0.3,
+        'target_cycle_description': 0.1,
+        'apply_description': 0.3,
+        'act_day_description': 0.3,
+        'location_description': 0.1,
+        'cost_description': 0.1,
+        'spec_description': 0.5
     }
 
     final_similarity = np.zeros_like(cosine_sim[data.columns[1]])

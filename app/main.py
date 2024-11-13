@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from typing import List
-from fetcher import club_fetcher, user_fetcher
-from adapter import adapter
+from adapter import content_adapter, user_adapter
 from preprocess import preprocess
 from analysis import analysis
 from recommend_clubs import content_recommend_clubs, content_recommend_clubs_n, user_recommend_clubs
 import core.boot
 from core.ctx import CTX
+from fetcher import club_fetcher, user_fetcher
 
 app = FastAPI()  
   
@@ -19,7 +19,7 @@ def create_recommend_model():
     global content_recommend_model
     if content_recommend_model is None:  
         fetcher_df = club_fetcher()
-        adapted_df = adapter(fetcher_df)
+        adapted_df = content_adapter(fetcher_df)
         preprocess_df = preprocess(adapted_df)
         final_similarity, final_data = analysis(preprocess_df)
         content_recommend_model = final_similarity, final_data
@@ -50,10 +50,11 @@ def get_recommendations(clubIDs: str, top_n: int = 3):
 def create_recommend_model():
     global user_recommend_model
     if user_recommend_model is None:
-        fetcher_df = club_fetcher()
-        adapted_df = adapter(fetcher_df)
+        content_fetcher_df = club_fetcher()
+        adapted_df = content_adapter(content_fetcher_df)
         club_df = preprocess(adapted_df)
-        user_favorites = user_fetcher()
+        user_fetcher_df = user_fetcher()
+        user_favorites = user_adapter(user_fetcher_df)
         user_recommend_model = (club_df, user_favorites)
         return {"message": "추천 모델이 성공적으로 생성되었습니다."}
     else:
