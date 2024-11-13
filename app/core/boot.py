@@ -1,4 +1,4 @@
-from core.config import env
+from core.config import setup_environment
 import core.ctx
 from db.db import DB
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -7,7 +7,7 @@ from scheduler.scheduler_registry import SCHEDULER_REGISTRY
 
 def boot():  
     print("Application initiation start")
-    environment = env()
+    environment = setup_environment()
 
     print("Current Profile : ", environment["PROFILE"])
 
@@ -25,7 +25,7 @@ def boot():
     for sc in SCHEDULER_REGISTRY:
         scheduler.add_job(sc[0], IntervalTrigger(seconds=sc[1]))
 
-    core.ctx.CTX = core.ctx.Container(env, db, scheduler)
+    core.ctx.CTX = core.ctx.Container(environment, db, scheduler)
     print("Application initiation finished.")
 
 boot()

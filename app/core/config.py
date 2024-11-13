@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 
-def env():
+def setup_environment():
     print("Load environment . . . ")
     load_dotenv()  
     environment = {}
