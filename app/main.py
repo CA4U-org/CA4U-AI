@@ -8,13 +8,6 @@ from recommend_clubs import content_recommend_clubs, content_recommend_clubs_n, 
 import core.boot
 from core.ctx import CTX
 from fetcher import club_fetcher, user_fetcher
-=======
-from app.fetcher import club_fetcher, user_fetcher
-from app.adapter import adapter
-from app.preprocess import preprocess
-from app.analysis import analysis
-from app.recommend_clubs import content_recommend_clubs, content_recommend_clubs_n, user_recommend_clubs
->>>>>>> 30d7666 (2번안 반영)
 
 app = FastAPI()  
   
