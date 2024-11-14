@@ -1,5 +1,5 @@
 import numpy as np
-from analysis import analysis
+from app.analysis import analysis
 
 # 콘텐츠 필터링 추천 모델
 def content_recommend_clubs(selected_id, final_similarity, data, top_n=3):
