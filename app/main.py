@@ -78,10 +78,11 @@ def create_recommend_model():
 def get_recommendations(userID: int):
     global user_recommend_model
     if user_recommend_model is None:
-        fetcher_df = club_fetcher()
-        adapted_df = content_adapter(fetcher_df)
+        content_fetcher_df = club_fetcher()
+        adapted_df = content_adapter(content_fetcher_df)
         club_df = preprocess(adapted_df)
-        user_favorites = user_fetcher()
+        user_fetcher_df = user_fetcher()
+        user_favorites = user_adapter(user_fetcher_df)
         user_recommend_model = (club_df, user_favorites)
     club_df, user_favorites = user_recommend_model
     user_recommended_clubs = user_recommend_clubs(userID, user_favorites, club_df)
