@@ -34,7 +34,7 @@ def get_recommendations(clubID: int):
     global content_recommend_model
     if content_recommend_model is None:  
         fetcher_df = club_fetcher()
-        adapted_df = adapter(fetcher_df)
+        adapted_df = content_adapter(fetcher_df)
         preprocess_df = preprocess(adapted_df)
         final_similarity, final_data = analysis(preprocess_df)
         content_recommend_model = final_similarity, final_data
@@ -48,7 +48,7 @@ def get_recommendations(clubIDs: str, top_n: int = 3):
     global content_recommend_model
     if content_recommend_model is None:  
         fetcher_df = club_fetcher()
-        adapted_df = adapter(fetcher_df)
+        adapted_df = content_adapter(fetcher_df)
         preprocess_df = preprocess(adapted_df)
         final_similarity, final_data = analysis(preprocess_df)
         content_recommend_model = final_similarity, final_data
@@ -79,7 +79,7 @@ def get_recommendations(userID: int):
     global user_recommend_model
     if user_recommend_model is None:
         fetcher_df = club_fetcher()
-        adapted_df = adapter(fetcher_df)
+        adapted_df = content_adapter(fetcher_df)
         club_df = preprocess(adapted_df)
         user_favorites = user_fetcher()
         user_recommend_model = (club_df, user_favorites)
