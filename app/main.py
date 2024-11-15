@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from typing import List
-<<<<<<< HEAD
 from adapter import content_adapter, user_adapter
 from preprocess import preprocess
 from analysis import analysis
