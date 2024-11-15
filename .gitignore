@@ -1,5 +1,5 @@
 
 /app/dataSource/**
 .env
-
+.venv/**
 **/__pycache__/** 
