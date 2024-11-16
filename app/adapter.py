@@ -1,6 +1,6 @@
 # Adapter 함수
 def content_adapter(df):
-    columns_to_use = ['id','club_nm', 'brief_description', 'recruit_description', 
+    columns_to_use = ['id','category_id','club_nm', 'brief_description', 'recruit_description', 
                       'target_people_description', 'target_cycle_description', 
                       'apply_description', 'act_day_description', 
                       'location_description', 'cost_description', 

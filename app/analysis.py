@@ -17,6 +17,7 @@ def analysis(data):
     weights = {
         'id':0,
         'club_nm': 0,
+        'category_id':0.5,
         'brief_description': 0.5,
         'recruit_description': 0.5,
         'target_people_description': 0.3,
