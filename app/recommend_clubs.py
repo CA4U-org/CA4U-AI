@@ -36,9 +36,6 @@ def content_recommend_clubs_n(selected_ids, final_similarity, data, top_n=3):
 
 # 사용자 협업 필터링 추천 모델
 def user_recommend_clubs(user_id, user_favorites, club_data, top_n=2):
-
-    if user_id not in user_favorites['user_id'].unique():
-        raise ValueError(f"User ID {user_id} not found in user_favorites.")
     
     user_clubs = user_favorites[user_favorites['user_id'] == user_id]['club_id']
     user_club_data = club_data[club_data['id'].isin(user_clubs)]

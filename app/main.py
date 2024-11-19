@@ -85,8 +85,11 @@ def get_recommendations(userID: int):
         user_favorites = user_adapter(user_fetcher_df)
         user_recommend_model = (club_df, user_favorites)
     club_df, user_favorites = user_recommend_model
-    user_recommended_clubs = user_recommend_clubs(userID, user_favorites, club_df)
-    return {"recommended_club": user_recommended_clubs}
+    
+    return (
+        {"recommended_club": user_recommend_clubs(userID, user_favorites, club_df)}
+        if userID in user_favorites['user_id'].unique()
+        else {"message": "해당 ID는 유사한 사용자를 찾을 수 없습니다."})
 
 
 @app.on_event("startup")
