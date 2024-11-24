@@ -1,3 +1,0 @@
-
-def printHelloScheduler():
-    print("Hello")

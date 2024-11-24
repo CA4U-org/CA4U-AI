@@ -1,4 +1,4 @@
-from scheduler.printHelloScheduler import printHelloScheduler
+from scheduler.updatemodelScheduler import update_content_recommend_model,update_user_recommend_model
 
 """
     SCHEDULER_REGISTRY
@@ -12,5 +12,5 @@ from scheduler.printHelloScheduler import printHelloScheduler
     => 5초에 한 번씩 printHelloScheduler가 실행됨
 """
 SCHEDULER_REGISTRY = [
-    # [printHelloScheduler, 5],
-]
+    [update_content_recommend_model, 21600],[update_user_recommend_model, 21600]
+] # 주기:6시간
