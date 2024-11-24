@@ -13,89 +13,75 @@ app = FastAPI()
 content_recommend_model = None
 user_recommend_model = None
 
+
+def initialize_content_model():
+    fetcher_df = club_fetcher()
+    adapted_df = content_adapter(fetcher_df)
+    preprocess_df = preprocess(adapted_df)
+    return analysis(preprocess_df)
+
+
+def initialize_user_model():
+    club_df = preprocess(content_adapter(club_fetcher()))
+    user_favorites = user_adapter(user_fetcher())
+    return club_df, user_favorites
+
+
 # content-recommend 모델 생성
 @app.get("/clubs/content/recommend/create")
 def create_recommend_model():
     global content_recommend_model
     if content_recommend_model is None:  
-        fetcher_df = club_fetcher()
-        adapted_df = content_adapter(fetcher_df)
-        preprocess_df = preprocess(adapted_df)
-        final_similarity, final_data = analysis(preprocess_df)
-        content_recommend_model = final_similarity, final_data
+        content_recommend_model = initialize_content_model()
         return {"message": "추천 모델이 성공적으로 생성되었습니다."}
     else:
         return {"message": "추천 모델이 이미 생성되어 있습니다."}
-
 
 # content-recommend 시스템 (경로 매개변수 사용)
 @app.get("/clubs/content/recommend/{clubID}")
 def get_recommendations(clubID: int):
     global content_recommend_model
     if content_recommend_model is None:  
-        fetcher_df = club_fetcher()
-        adapted_df = content_adapter(fetcher_df)
-        preprocess_df = preprocess(adapted_df)
-        final_similarity, final_data = analysis(preprocess_df)
-        content_recommend_model = final_similarity, final_data
+        content_recommend_model = initialize_content_model()
     final_similarity, final_data = content_recommend_model
-    content_recommended_clubs = content_recommend_clubs(clubID, final_similarity, final_data)
-    return {"recommended_club": content_recommended_clubs}
+    return {"recommended_club": content_recommend_clubs(clubID, final_similarity, final_data)}
 
 # content-recommend 시스템 (복수의 clubID 쉼표로 구분)
 @app.get("/clubs/content/recommend/n/{clubIDs}")
 def get_recommendations(clubIDs: str, top_n: int = 3):
     global content_recommend_model
     if content_recommend_model is None:  
-        fetcher_df = club_fetcher()
-        adapted_df = content_adapter(fetcher_df)
-        preprocess_df = preprocess(adapted_df)
-        final_similarity, final_data = analysis(preprocess_df)
-        content_recommend_model = final_similarity, final_data
+        content_recommend_model = initialize_content_model()
     final_similarity, final_data = content_recommend_model
     selected_ids = [int(id.strip()) for id in clubIDs.split(",")] # clubIDs를 쉼표로 구분하여 리스트로 변환
-    content_recommended_clubs_n = content_recommend_clubs_n(selected_ids, final_similarity, final_data, top_n=top_n)
-    return {"recommended_clubs": content_recommended_clubs_n}
+    return {"recommended_clubs": content_recommend_clubs_n(selected_ids, final_similarity, final_data, top_n=top_n)}
+
 
 # user-recommend 모델 생성
 @app.get("/clubs/user/recommend/create")
 def create_recommend_model():
     global user_recommend_model
     if user_recommend_model is None:
-        content_fetcher_df = club_fetcher()
-        adapted_df = content_adapter(content_fetcher_df)
-        club_df = preprocess(adapted_df)
-        user_fetcher_df = user_fetcher()
-        user_favorites = user_adapter(user_fetcher_df)
-        user_recommend_model = (club_df, user_favorites)
+        user_recommend_model = initialize_user_model()
         return {"message": "추천 모델이 성공적으로 생성되었습니다."}
     else:
         return {"message": "추천 모델이 이미 생성되어 있습니다."}
-
 
 # user-recommend 시스템 (경로 매개변수 사용)
 @app.get("/clubs/user/recommend/{userID}")
 def get_recommendations(userID: int):
     global user_recommend_model
     if user_recommend_model is None:
-        content_fetcher_df = club_fetcher()
-        adapted_df = content_adapter(content_fetcher_df)
-        club_df = preprocess(adapted_df)
-        user_fetcher_df = user_fetcher()
-        user_favorites = user_adapter(user_fetcher_df)
-        user_recommend_model = (club_df, user_favorites)
+        user_recommend_model = initialize_user_model()
     club_df, user_favorites = user_recommend_model
-    
-    return (
-        {"recommended_club": user_recommend_clubs(userID, user_favorites, club_df)}
-        if userID in user_favorites['user_id'].unique()
-        else {"message": "해당 ID는 유사한 사용자를 찾을 수 없습니다."})
+    if userID in user_favorites['user_id'].unique():
+        return {"recommended_club": user_recommend_clubs(userID, user_favorites, club_df)}
+    return {"message": "해당 ID는 유사한 사용자를 찾을 수 없습니다."}
 
 
 @app.on_event("startup")
 def start_scheduler():
-    scheduler = CTX.scheduler
-    scheduler.start()
+    CTX.scheduler.start()
 
 # FastAPI 앱 종료 시 스케줄러 종료
 @app.on_event("shutdown")  
