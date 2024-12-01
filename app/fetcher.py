@@ -11,3 +11,7 @@ def user_fetcher():
     favorite_data = CTX.DB.find_all("FAVORITE")
     favorite_df = pd.DataFrame(favorite_data)
     return favorite_df
+
+def item_fetcher():
+    click_data = pd.read_csv('dataSource/amplitude_data.csv')
+    return click_data

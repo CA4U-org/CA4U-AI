@@ -1,18 +1,18 @@
 from fastapi import FastAPI
 from typing import List
-from adapter import content_adapter, user_adapter
-from preprocess import preprocess
-from analysis import analysis
-from recommend_clubs import content_recommend_clubs, content_recommend_clubs_n, user_recommend_clubs
+from adapter import content_adapter, user_adapter, item_adapter
+from preprocess import preprocess, item_preprocess
+from analysis import analysis, item_analysis
+from recommend_clubs import content_recommend_clubs, content_recommend_clubs_n, user_recommend_clubs, item_recommend_clubs
 import core.boot
 from core.ctx import CTX
-from fetcher import club_fetcher, user_fetcher
-from scheduler.updatemodelScheduler import update_content_recommend_model,update_user_recommend_model
+from fetcher import club_fetcher, user_fetcher, item_fetcher
 
 app = FastAPI()  
   
 content_recommend_model = None
 user_recommend_model = None
+item_recommend_model = None
 
 def initialize_content_model():
     fetcher_df = club_fetcher()
@@ -25,6 +25,15 @@ def initialize_user_model():
     club_df = preprocess(content_adapter(club_fetcher()))
     user_favorites = user_adapter(user_fetcher())
     return club_df, user_favorites
+
+def initialize_item_model():
+    fetcher_df = item_fetcher()
+    adapted_df = item_adapter(fetcher_df)
+    preprocess_df = item_preprocess(adapted_df)
+    interaction_matrix = item_analysis(preprocess_df) 
+    club_data = club_fetcher()
+    return interaction_matrix,club_data
+
 
 # content-recommend 시스템 (경로 매개변수 사용)
 @app.get("/clubs/content/recommend/{clubID}")
@@ -55,6 +64,17 @@ def get_recommendations(userID: int):
     if userID in user_favorites['user_id'].unique():
         return {"recommended_club": user_recommend_clubs(userID, user_favorites, club_df)}
     return {"message": "해당 ID는 유사한 사용자를 찾을 수 없습니다."}
+
+# item-recommend 시스템 (경로 매개변수 사용)
+@app.get("/clubs/item/recommend/{clubID}")
+def get_recommendations(clubID: int):
+    global item_recommend_model
+    if item_recommend_model is None:
+        item_recommend_model = initialize_item_model()
+    interaction_matrix,club_data = item_recommend_model
+    if str(clubID) in interaction_matrix.columns:
+        return {"recommended_club": item_recommend_clubs(interaction_matrix, clubID, club_data)}
+    return {"message": "해당 동아리는 함께 둘러본 동아리를 찾을 수 없습니다."}
 
 
 @app.on_event("startup")

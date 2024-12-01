@@ -1,3 +1,5 @@
+from sklearn.metrics.pairwise import cosine_similarity
+import pandas as pd
 import numpy as np
 from analysis import analysis
 
@@ -70,4 +72,22 @@ def user_recommend_clubs(user_id, user_favorites, club_data, top_n=2):
         {"id": int(row['id']), "name": row['club_nm']}
         for _, row in club_data[club_data['id'].isin(recommended_clubs)].iterrows()
     ]
+    return top_clubs
+
+# 아이템 기반 협업 필터링 추천 모델
+def item_recommend_clubs(interaction_matrix, club_id, club_data, top_n=5):
+
+    # 동아리 간 코사인 유사도 계산
+    club_similarity = cosine_similarity(interaction_matrix.T)
+    club_similarity_df = pd.DataFrame(
+        club_similarity, 
+        index=interaction_matrix.columns, 
+        columns=interaction_matrix.columns)
+    
+    similar_clubs = club_similarity_df[str(club_id)].sort_values(ascending=False)[1:top_n+1]
+    top_recommended = similar_clubs.index.astype(int).tolist()
+    
+    top_clubs = [
+        {"id": int(club_data['id'][i]), "name": club_data['club_nm'][i]}
+        for i in club_data[club_data['id'].isin(top_recommended)].index ]
     return top_clubs

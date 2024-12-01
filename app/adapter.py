@@ -10,3 +10,7 @@ def content_adapter(df):
 def user_adapter(df):
     columns_to_use = ['user_id','club_id']
     return df[columns_to_use].copy()
+
+def item_adapter(df):
+    columns_to_use = ['amplitude_id', 'event_properties']
+    return df[columns_to_use].copy()
