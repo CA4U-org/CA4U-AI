@@ -30,13 +30,15 @@ def preprocess(data):
 
 def item_preprocess(df):
 
-    df['event_properties'] = df['event_properties'].apply(eval)
     df['event_properties'] = df['event_properties'].apply(
-        lambda x: x.get('[Amplitude] Page URL', None) )
-
+        lambda x: str(x) if isinstance(x, (int, float)) else x)
+    df['event_properties'] = df['event_properties'].apply(
+        lambda x: eval(x) if isinstance(x, str) else x)
+    df['event_properties'] = df['event_properties'].apply(
+        lambda x: x.get('[Amplitude] Page URL', None) if isinstance(x, dict) else None)
+    
     df = df[df['event_properties'].str.contains("club", case=False, na=False)]
     df['event_properties'] = df['event_properties'].str.extract(r'/(\d+)$')
     df.rename(columns={'event_properties': 'club_id'}, inplace=True)
-    
-    return df
 
+    return df
