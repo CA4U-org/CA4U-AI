@@ -85,9 +85,10 @@ def item_recommend_clubs(interaction_matrix, club_id, club_data, top_n=5):
         columns=interaction_matrix.columns)
     
     similar_clubs = club_similarity_df[str(club_id)].sort_values(ascending=False)[1:top_n+1]
-    top_recommended = similar_clubs.index.astype(int).tolist()
-    
+
+    # 유사도 순으로 추천 동아리 정보 가져오기
     top_clubs = [
-        {"id": int(club_data['id'][i]), "name": club_data['club_nm'][i]}
-        for i in club_data[club_data['id'].isin(top_recommended)].index ]
+        {"id": int(club_id), "name": club_data.loc[club_data['id'] == int(club_id), 'club_nm'].values[0]}
+        for club_id in similar_clubs.index
+    ]
     return top_clubs
