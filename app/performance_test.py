@@ -3,7 +3,6 @@ import numpy as np
 import os
 
 
-
 ########################### 1. 동아리 데이터 ########################
 
 # 프로젝트 루트 기준 상대 경로 설정
@@ -42,6 +41,7 @@ for user, ids in user_id_lists.items():
 
     
 ########################## 3. 내적 계산 ###########################
+
 user_category_matrix = user_df.dot(club_df)
 
 # normalization
@@ -86,9 +86,8 @@ print(user_favorites)
 
 ############################# 5. 알고리즘 설계 ###########################
 
-content_recommend_model = None
-
-from main import initialize_content_model
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 def analysis_test(data):
     
@@ -102,6 +101,9 @@ def analysis_test(data):
         cosine_sim[col] = cosine_similarity(tfidf_matrix[col])
 
     weights = {
+         """
+         가중치 조정 가능!
+         """
         'id':0,
         'club_nm': 0,
         'category_id':0.5,
@@ -122,13 +124,6 @@ def analysis_test(data):
     
     return final_similarity, data
 
-def initialize_content_model():
-    fetcher_df = club_fetcher()
-    adapted_df = content_adapter(fetcher_df)
-    preprocess_df = preprocess(adapted_df)
-    final_similarity, final_data = analysis_test(preprocess_df) 
-    return final_similarity, final_data 
-    
 def content_recommend_clubs_n(selected_ids, final_similarity, data, top_n=3):
     aggregated_scores = {}
     for selected_id in selected_ids:
@@ -144,6 +139,21 @@ def content_recommend_clubs_n(selected_ids, final_similarity, data, top_n=3):
         for i, _ in top_recommended
     ]
     return top_clubs
+
+from adapter import content_adapter
+from preprocess import preprocess
+import core.boot
+from core.ctx import CTX
+from fetcher import club_fetcher
+
+content_recommend_model = None
+
+def initialize_content_model():
+    fetcher_df = club_fetcher()
+    adapted_df = content_adapter(fetcher_df)
+    preprocess_df = preprocess(adapted_df)
+    final_similarity, final_data = analysis_test(preprocess_df) 
+    return final_similarity, final_data
 
 def get_recommendations(clubIDs: str, top_n: int = 3):
     global content_recommend_model
