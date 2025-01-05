@@ -58,8 +58,7 @@ def get_recommendations(clubIDs: str, top_n: int = 3):
 @app.get("/clubs/user/recommend/{userID}")
 def get_recommendations(userID: int):
     global user_recommend_model
-    if user_recommend_model is None:
-       user_recommend_model = initialize_user_model()
+    user_recommend_model = initialize_user_model()
     club_df, user_favorites = user_recommend_model
     if userID in user_favorites['user_id'].unique():
         return {"recommended_club": user_recommend_clubs(userID, user_favorites, club_df)}
