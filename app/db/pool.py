@@ -2,7 +2,7 @@ import pymysql
 import queue
 
 class MySQLConnectionPool:
-    def __init__(self, host, user, password, database, pool_size=5):
+    def __init__(self, host, user, password, database, pool_size=1):
         self.host = host
         self.user = user
         self.password = password
