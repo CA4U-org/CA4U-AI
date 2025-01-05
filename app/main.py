@@ -57,7 +57,6 @@ def get_recommendations(clubIDs: str, top_n: int = 3):
 # user-recommend 시스템 (경로 매개변수 사용)
 @app.get("/clubs/user/recommend/{userID}")
 def get_recommendations(userID: int):
-    global user_recommend_model
     user_recommend_model = initialize_user_model()
     club_df, user_favorites = user_recommend_model
     if userID in user_favorites['user_id'].unique():
