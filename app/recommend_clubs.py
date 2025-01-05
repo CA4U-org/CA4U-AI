@@ -19,19 +19,28 @@ def content_recommend_clubs(selected_id, final_similarity, data, top_n=3):
 # 콘텐츠 필터링 추천 모델(ID 복수 입력 가능)
 def content_recommend_clubs_n(selected_ids, final_similarity, data, top_n=3):
     aggregated_scores = {}
-    for selected_id in selected_ids:  # 각 선택된 clubID에 대해 유사도 점수 계산 및 합산
+    excluded_ids = set(selected_ids)
+    
+    for selected_id in selected_ids:
         idx = data[data['id'] == int(selected_id)].index[0]
         sim_scores = [
             (i, score) for i, score in enumerate(final_similarity[idx]) if i != idx
         ]
         for i, score in sim_scores:
             aggregated_scores[i] = aggregated_scores.get(i, 0) + score
-    top_recommended = sorted(aggregated_scores.items(), key=lambda x: x[1], reverse=True)[:top_n]
     
+
+    filtered_scores = {
+        i: score for i, score in aggregated_scores.items() 
+        if int(data['id'][i]) not in excluded_ids
+    }
+    
+    top_recommended = sorted(filtered_scores.items(), key=lambda x: x[1], reverse=True)[:top_n]
     top_clubs = [
         {"id": int(data['id'][i]), "name": data['club_nm'][i]}
         for i, _ in top_recommended
     ]
+    
     return top_clubs
 
 
