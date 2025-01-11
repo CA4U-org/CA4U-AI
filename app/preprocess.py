@@ -27,17 +27,22 @@ def preprocess(data):
     return data
 
 
-def item_preprocess(df):
-
-    df['event_properties'] = df['event_properties'].apply(
+def click_preprocess(df):
+    df = df.copy()  # 복사본 생성하여 작업
+    
+    df.loc[:, 'event_properties'] = df['event_properties'].apply(
         lambda x: str(x) if isinstance(x, (int, float)) else x)
-    df['event_properties'] = df['event_properties'].apply(
+    df.loc[:, 'event_properties'] = df['event_properties'].apply(
         lambda x: eval(x) if isinstance(x, str) else x)
-    df['event_properties'] = df['event_properties'].apply(
+    df.loc[:, 'event_properties'] = df['event_properties'].apply(
         lambda x: x.get('[Amplitude] Page URL', None) if isinstance(x, dict) else None)
     
     df = df[df['event_properties'].str.contains("club", case=False, na=False)]
-    df['event_properties'] = df['event_properties'].str.extract(r'/(\d+)$')
-    df.rename(columns={'event_properties': 'club_id'}, inplace=True)
+    df.loc[:, 'event_properties'] = df['event_properties'].str.extract(r'/(\d+)$')
+    df = df.rename(columns={'event_properties': 'club_id'})
+
+    df = df[df['user_id'].notna()]
+    df.loc[:, 'user_id'] = df['user_id'].str.extract(r'(\d+)$').astype(int)
+    df = df[df['club_id'].notna()]
 
     return df

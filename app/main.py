@@ -1,18 +1,17 @@
 from fastapi import FastAPI
 from typing import List
-from adapter import content_adapter, user_adapter, item_adapter
-from preprocess import preprocess, item_preprocess
-from analysis import analysis, item_analysis
-from recommend_clubs import content_recommend_clubs, content_recommend_clubs_n, user_recommend_clubs, item_recommend_clubs
+from adapter import content_adapter, favorite_adapter, click_adapter
+from preprocess import preprocess, click_preprocess
+from analysis import analysis, click_analysis
+from recommend_clubs import content_recommend_clubs, content_recommend_clubs_n, user_recommend_clubs
 import core.boot
 from core.ctx import CTX
-from fetcher import club_fetcher, user_fetcher, item_fetcher
+from fetcher import club_fetcher, favorite_fetcher, click_fetcher
 
 app = FastAPI()  
   
 content_recommend_model = None
 user_recommend_model = None
-item_recommend_model = None
 
 def initialize_content_model():
     fetcher_df = club_fetcher()
@@ -23,16 +22,9 @@ def initialize_content_model():
 
 def initialize_user_model():
     club_df = preprocess(content_adapter(club_fetcher()))
-    user_favorites = user_adapter(user_fetcher())
-    return club_df, user_favorites
-
-def initialize_item_model():
-    fetcher_df = item_fetcher()
-    adapted_df = item_adapter(fetcher_df)
-    preprocess_df = item_preprocess(adapted_df)
-    interaction_matrix = item_analysis(preprocess_df) 
-    club_data = club_fetcher()
-    return interaction_matrix,club_data
+    user_favorites = favorite_adapter(favorite_fetcher())
+    interaction_matrix = click_analysis(click_preprocess(click_adapter(click_fetcher())))
+    return club_df, user_favorites,interaction_matrix
 
 
 # content-recommend 시스템 (경로 매개변수 사용)
@@ -59,21 +51,13 @@ def get_recommendations(clubIDs: str, top_n: int = 3):
 def get_recommendations(userID: int):
     global user_recommend_model
     user_recommend_model = initialize_user_model()
-    club_df, user_favorites = user_recommend_model
+    club_df, user_favorites,interaction_matrix = user_recommend_model
     if userID in user_favorites['user_id'].unique():
-        return {"recommended_club": user_recommend_clubs(userID, user_favorites, club_df)}
+        return {"recommended_club": user_recommend_clubs(userID, user_favorites, club_df, interaction_matrix)}
+    if userID in interaction_matrix.index:
+        return {"recommended_club": user_recommend_clubs(userID, user_favorites, club_df, interaction_matrix)}  
     return {"message": "해당 ID는 유사한 사용자를 찾을 수 없습니다."}
 
-# item-recommend 시스템 (경로 매개변수 사용)
-@app.get("/clubs/item/recommend/{clubID}")
-def get_recommendations(clubID: int):
-    global item_recommend_model
-    if item_recommend_model is None:
-        item_recommend_model = initialize_item_model()
-    interaction_matrix,club_data = item_recommend_model
-    if str(clubID) in interaction_matrix.columns:
-        return {"recommended_club": item_recommend_clubs(interaction_matrix, clubID, club_data)}
-    return {"message": "해당 동아리는 함께 둘러본 동아리를 찾을 수 없습니다."}
 
 
 @app.on_event("startup")

@@ -16,13 +16,13 @@ def club_fetcher():
     club_df = pd.DataFrame(club_data)
     return club_df
 
-def user_fetcher():
+def favorite_fetcher():
     favorite_data = CTX.DB.find_all("FAVORITE")
     favorite_df = pd.DataFrame(favorite_data)
     return favorite_df
 
 
-def item_fetcher():
+def click_fetcher():
 
     load_dotenv()
     API_KEY = os.getenv("AMPLITUDE_API_KEY")
@@ -32,7 +32,7 @@ def item_fetcher():
 
     # API 요청 설정
     EXPORT_URL = "https://amplitude.com/api/2/export"
-    params = {"start": "20241118T00", "end": current_date}  # end는 현재 UTC 날짜
+    params = {"start": "20250111T00", "end": current_date}  # end는 현재 UTC 날짜
     auth_header = base64.b64encode(f"{API_KEY}:{API_SECRET}".encode()).decode()
     headers = {"Authorization": f"Basic {auth_header}"}
 

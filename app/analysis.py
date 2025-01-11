@@ -36,7 +36,7 @@ def analysis(data):
     
     return final_similarity, data
 
-def item_analysis(df):
+def click_analysis(df):
     #유저-동아리 상호작용 행렬 생성
-    interaction_matrix = pd.crosstab(index=df['amplitude_id'], columns=df['club_id'])
+    interaction_matrix = pd.crosstab(index=df['user_id'], columns=df['club_id'])
     return interaction_matrix

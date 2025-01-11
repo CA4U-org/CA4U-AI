@@ -7,10 +7,10 @@ def content_adapter(df):
                       'spec_description']
     return df[columns_to_use].copy()
 
-def user_adapter(df):
+def favorite_adapter(df):
     columns_to_use = ['user_id','club_id']
     return df[columns_to_use].copy()
 
-def item_adapter(df):
-    columns_to_use = ['amplitude_id', 'event_properties']
+def click_adapter(df):
+    columns_to_use = ['user_id', 'event_properties']
     return df[columns_to_use].copy()

@@ -44,29 +44,53 @@ def content_recommend_clubs_n(selected_ids, final_similarity, data, top_n=3):
     return top_clubs
 
 
-# 사용자 협업 필터링 추천 모델
-def user_recommend_clubs(user_id, user_favorites, club_data, top_n=2):
+def user_recommend_clubs(user_id, user_favorites, club_data, interaction_matrix, top_n=2, click_weight=0.5, favorite_weight=0.5):
+    # 즐겨찾기 기반 유사도 
+    favorite_similarity, _ = analysis(club_data)
     
+    # 클릭로그 기반 유사도 
+    user_similarity_matrix = cosine_similarity(interaction_matrix)
+    click_similarity = pd.DataFrame(
+        user_similarity_matrix,
+        index=interaction_matrix.index,
+        columns=interaction_matrix.index)
+
+    # 사용자 클럽 정보 추출
     user_clubs = user_favorites[user_favorites['user_id'] == user_id]['club_id']
     user_club_data = club_data[club_data['id'].isin(user_clubs)]
-
-    final_similarity, _ = analysis(club_data) 
-
-    # 사용자 간 유사도 계산
+    
+    # 사용자 간 final 유사도 계산
     user_similarity = {}
     for other_user in user_favorites['user_id'].unique():
         if other_user == user_id:
             continue
-        other_clubs = user_favorites[user_favorites['user_id'] == other_user]['club_id']
-        other_club_data = club_data[club_data['id'].isin(other_clubs)]
+        
+        # favorite_similarity 
+        if user_id in user_favorites['user_id'].values:  
+            other_clubs = user_favorites[user_favorites['user_id'] == other_user]['club_id']
+            other_club_data = club_data[club_data['id'].isin(other_clubs)]
 
-        similarities = [
-            final_similarity[user_club_id - 1, other_club_id - 1]
-            for user_club_id in user_club_data['id']
-            for other_club_id in other_club_data['id']
-        ]
-        user_similarity[other_user] = np.mean(similarities) if similarities else 0
-  
+            favorite_similarities = [
+                favorite_similarity[user_club_id - 1, other_club_id - 1]
+                for user_club_id in user_club_data['id']
+                for other_club_id in other_club_data['id']
+            ]
+            favorite_sim = np.mean(favorite_similarities) if favorite_similarities else 0
+        else:
+            favorite_sim = 0  
+
+        # click_similarity 
+        if user_id in click_similarity.index:
+            click_sim = click_similarity.at[user_id, other_user] if other_user in click_similarity.columns else 0
+        else:
+            click_sim = 0  
+
+        # 두 유사도의 가중 평균 계산
+        total_similarity = (click_weight * click_sim) + (favorite_weight * favorite_sim)
+
+        user_similarity[other_user] = total_similarity
+
+    # 가장 유사한 사용자들 추출
     most_similar_users = sorted(user_similarity.items(), key=lambda x: x[1], reverse=True)[:top_n]
 
     # 추천 동아리 추출
@@ -75,29 +99,11 @@ def user_recommend_clubs(user_id, user_favorites, club_data, top_n=2):
         similar_user_clubs = user_favorites[user_favorites['user_id'] == similar_user]['club_id']
         recommended_clubs.update(similar_user_clubs)
 
-    recommended_clubs -= set(user_clubs)  # 대상 사용자가 이미 즐겨찾기한 동아리는 제외
+    recommended_clubs -= set(user_clubs)  # 이미 즐겨찾기한 동아리는 제외
 
+    # 추천 동아리 정보 반환
     top_clubs = [
         {"id": int(row['id']), "name": row['club_nm']}
         for _, row in club_data[club_data['id'].isin(recommended_clubs)].iterrows()
-    ]
-    return top_clubs
-
-# 아이템 기반 협업 필터링 추천 모델
-def item_recommend_clubs(interaction_matrix, club_id, club_data, top_n=5):
-
-    # 동아리 간 코사인 유사도 계산
-    club_similarity = cosine_similarity(interaction_matrix.T)
-    club_similarity_df = pd.DataFrame(
-        club_similarity, 
-        index=interaction_matrix.columns, 
-        columns=interaction_matrix.columns)
-    
-    similar_clubs = club_similarity_df[str(club_id)].sort_values(ascending=False)[1:top_n+1]
-
-    # 유사도 순으로 추천 동아리 정보 가져오기
-    top_clubs = [
-        {"id": int(club_id), "name": club_data.loc[club_data['id'] == int(club_id), 'club_nm'].values[0]}
-        for club_id in similar_clubs.index
     ]
     return top_clubs
