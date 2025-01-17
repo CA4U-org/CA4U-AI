@@ -12,6 +12,7 @@ app = FastAPI()
   
 content_recommend_model = None
 user_recommend_model = None
+click_recommend_model = None
 
 def initialize_content_model():
     fetcher_df = club_fetcher()
@@ -23,8 +24,12 @@ def initialize_content_model():
 def initialize_user_model():
     club_df = preprocess(content_adapter(club_fetcher()))
     user_favorites = favorite_adapter(favorite_fetcher())
-    interaction_matrix = click_analysis(click_preprocess(click_adapter(click_fetcher())))
-    return club_df, user_favorites,interaction_matrix
+    return club_df, user_favorites
+
+def initialize_click_model():
+    click_similarity = click_analysis(click_preprocess(click_adapter(click_fetcher())))
+    return click_similarity
+
 
 
 # content-recommend 시스템 (경로 매개변수 사용)
@@ -49,13 +54,17 @@ def get_recommendations(clubIDs: str, top_n: int = 3):
 # user-recommend 시스템 (경로 매개변수 사용)
 @app.get("/clubs/user/recommend/{userID}")
 def get_recommendations(userID: int):
-    global user_recommend_model
+    global click_recommend_model
+    if click_recommend_model is None:
+        click_recommend_model = initialize_click_model()
     user_recommend_model = initialize_user_model()
-    club_df, user_favorites,interaction_matrix = user_recommend_model
+    club_df, user_favorites = user_recommend_model
+    click_similarity = click_recommend_model
+    
     if userID in user_favorites['user_id'].unique():
-        return {"recommended_club": user_recommend_clubs(userID, user_favorites, club_df, interaction_matrix)}
-    if userID in interaction_matrix.index:
-        return {"recommended_club": user_recommend_clubs(userID, user_favorites, club_df, interaction_matrix)}  
+        return {"recommended_club": user_recommend_clubs(userID, user_favorites, club_df,click_similarity)}
+    if userID in click_similarity.index:
+        return {"recommended_club": user_recommend_clubs(userID, user_favorites, club_df,click_similarity)}  
     return {"message": "해당 ID는 유사한 사용자를 찾을 수 없습니다."}
 
 

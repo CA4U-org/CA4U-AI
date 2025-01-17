@@ -10,9 +10,9 @@ def update_user_recommend_model():
     user_recommend_model = initialize_user_model()
     print("사용자 추천 모델이 갱신되었습니다.")
 
-def update_item_recommend_model():
-    from main import initialize_item_model
-    global item_recommend_model
-    item_recommend_model = initialize_item_model()
-    print("아이템 추천 모델이 갱신되었습니다.")
+def update_click_recommend_model():
+    from main import initialize_click_model
+    global click_recommend_model
+    click_recommend_model = initialize_click_model()
+    print("클릭기반 유사도가 갱신되었습니다.")
 

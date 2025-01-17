@@ -44,17 +44,10 @@ def content_recommend_clubs_n(selected_ids, final_similarity, data, top_n=3):
     return top_clubs
 
 
-def user_recommend_clubs(user_id, user_favorites, club_data, interaction_matrix, top_n=2, click_weight=0.5, favorite_weight=0.5):
+def user_recommend_clubs(user_id, user_favorites, club_data, click_similarity, top_n=2, click_weight=0.5, favorite_weight=0.5):
     # 즐겨찾기 기반 유사도 
     favorite_similarity, _ = analysis(club_data)
     
-    # 클릭로그 기반 유사도 
-    user_similarity_matrix = cosine_similarity(interaction_matrix)
-    click_similarity = pd.DataFrame(
-        user_similarity_matrix,
-        index=interaction_matrix.index,
-        columns=interaction_matrix.index)
-
     # 사용자 클럽 정보 추출
     user_clubs = user_favorites[user_favorites['user_id'] == user_id]['club_id']
     user_club_data = club_data[club_data['id'].isin(user_clubs)]
