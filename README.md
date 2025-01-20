@@ -1,6 +1,6 @@
 # CA4U-AI
 추천시스템 플로우
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/05e1a22f-2edc-4ba0-8100-67767b4119bd/a968673a-565b-4460-a16d-1c47b9c239aa/image.png)
+![추천시스템 플로우](recommendation system flow.png)
 
 ## Required
 
